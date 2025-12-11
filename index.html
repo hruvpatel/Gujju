@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gujju</title>
+  <style>
+    /* Reset & basics */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter, system-ui, Arial, sans-serif;line-height:1.4;color:#111}
+    a{text-decoration:none;color:inherit}
+
+    /* Top promo bar */
+    .topbar{background:#f6f7f8;border-bottom:1px solid #eee;padding:8px 16px;font-size:14px;display:flex;align-items:center}
+    .topbar .left{flex:1;min-width:0;color:#111}
+    .topbar .right{display:flex;gap:16px}
+
+    /* Header */
+    header{background:#fff;box-shadow:0 1px 0 rgba(0,0,0,0.04)}
+    .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;gap:12px}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo img{height:44px;max-height:44px;width:auto;display:block;object-fit:contain}
+    .search{flex:1;max-width:560px;display:flex;align-items:center}
+    .search input{flex:1;padding:10px 12px;border:1px solid #e4e4e4;border-right:0;border-radius:6px 0 0 6px}
+    .search button{padding:10px 14px;border:1px solid #e4e4e4;background:#111;color:#fff;border-radius:0 6px 6px 0;cursor:pointer}
+    .icons{display:flex;gap:12px;align-items:center}
+    .icon{padding:8px 10px;border-radius:6px;cursor:pointer}
+
+    /* Nav */
+    nav{background:#fff;border-top:1px solid #f1f1f1}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;gap:18px;padding:10px 16px;align-items:center}
+    .nav-link{position:relative;padding:8px 10px;border-radius:6px;color:#333;font-weight:600}
+    .nav-link:hover{background:linear-gradient(90deg, rgba(0,0,0,0.03), rgba(0,0,0,0.01));}
+    /* dropdown */
+    .dropdown{position:absolute;left:0;top:44px;min-width:220px;background:#fff;border:1px solid #eee;box-shadow:0 6px 18px rgba(0,0,0,0.06);padding:12px;border-radius:8px;opacity:0;transform:translateY(6px);transition:all .18s;pointer-events:none}
+    .nav-link:hover .dropdown{opacity:1;transform:translateY(0);pointer-events:auto}
+    .dropdown a{display:block;padding:6px 8px;border-radius:6px;color:#333}
+    .dropdown a:hover{background:#f4f6f8}
+
+    /* Hero */
+    .hero{background:linear-gradient(90deg,#fafafa,#fff);padding:36px 16px}
+    .hero-inner{max-width:1200px;margin:0 auto;display:flex;gap:20px;align-items:center}
+    .hero-left{flex:1}
+    .hero-right{flex:1}
+    .cta{display:inline-block;padding:12px 18px;background:#ff7f00;color:#fff;border-radius:8px;margin-top:12px}
+
+    /* Footer */
+    footer{background:#111;color:#fff;padding:28px 16px}
+    .footer-inner{max-width:1200px;margin:0 auto;display:flex;gap:24px;flex-wrap:wrap}
+    .col{min-width:160px}
+    .footer h4{font-size:15px;margin-bottom:10px}
+    .footer a{color:#ddd;display:block;margin:6px 0}
+    .socials{display:flex;gap:8px;margin-top:8px}
+
+    /* Marquee / sliding promo (add to existing <style>) */
+    .topbar{background:#f6f7f8;border-bottom:1px solid #eee;padding:8px 16px;font-size:14px;display:flex;align-items:center}
+    .topbar .left{flex:1;min-width:0;color:#111}
+
+    /* marquee container */
+    .marquee{overflow:hidden;display:block;width:100%;border-radius:6px}
+    .marquee:focus{outline:2px solid rgba(0,0,0,0.06);outline-offset:2px}
+
+    /* track: duplicate content technique for continuous scroll */
+    .marquee-track{display:inline-flex;gap:48px;align-items:center;white-space:nowrap;
+      animation: marquee 12s linear infinite;}
+    .marquee-item{display:inline-block;padding:6px 0;color:#111;font-weight:600}
+
+    /* pause on hover / focus */
+    .marquee:hover .marquee-track,
+    .marquee:focus .marquee-track{animation-play-state:paused}
+
+    /* accessibility: respect user's reduced motion preference */
+    @media (prefers-reduced-motion: reduce){
+      .marquee-track{animation:none}
+    }
+
+    /* animation moves left by 50% because track contains two identical sequences */
+    @keyframes marquee{
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* smaller screens: slightly slower and tighter spacing */
+    @media (max-width:700px){
+      .marquee-track{gap:28px;animation-duration:18s}
+      .marquee-item{font-size:13px}
+    }
+
+    /* responsive */
+    @media (max-width:900px){
+      .search{display:none}
+      .nav-inner{overflow:auto}
+      .hero-inner{flex-direction:column}
+      .logo img{height:38px}
+    }
+
+    /* ===== EXCLUSIVE EDITIONS SLIDER ===== */
+    .exclusive-editions { padding:60px 16px; background:#fdfdfd; text-align:center; }
+    .exclusive-editions h2 { font-size:32px; margin-bottom:12px; font-weight:700; }
+    .exclusive-editions p { font-size:16px; color:#555; margin-bottom:40px; }
+    .edition-card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.08); transition: transform .25s, box-shadow .25s; text-align:center; padding-bottom:16px; }
+    .edition-card:hover { transform:translateY(-6px); box-shadow:0 12px 28px rgba(0,0,0,0.12); }
+    .edition-card img { width:100%; display:block; }
+    .edition-card h3 { font-size:18px; margin:12px 16px 6px; }
+    .edition-card p { font-size:14px; color:#666; margin:0 16px 12px; }
+    .edition-card .btn { display:inline-block; margin-top:8px; padding:10px 18px; background:#FF8C00; color:#fff; border-radius:6px; text-decoration:none; font-weight:600; transition: background .25s, transform .25s; }
+    .edition-card .btn:hover { background:#ff7f00; transform:scale(1.05); }
+    .swiper-button-next, .swiper-button-prev { color:#FF8C00; }
+
+    /* ===== MEGA POPUP MENU STYLES ===== */
+    .mega-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      backdrop-filter: blur(0px);
+      opacity: 0;
+      visibility: hidden;
+      z-index: 998;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mega-popup-overlay.show {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      opacity: 1;
+      visibility: visible;
+    }
+    .mega-popup {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px) scale(0.95);
+      width: 90%;
+      max-width: 1250px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 999;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mega-popup.show {
+      transform: translateX(-50%) translateY(0) scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
+    .popup-header {
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+    }
+    .popup-header h4 {
+      background: linear-gradient(135deg, #ffb75e 0%, #ed8f03 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+      font-size: 28px;
+    }
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn-close:hover {
+      transform: rotate(90deg);
+      opacity: 0.7;
+    }
+    .mega-tabs {
+      display: flex;
+      justify-content: center;
+      border-bottom: none;
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 50px;
+      width: fit-content;
+      margin: 0 auto;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+    .mega-tabs .nav-link {
+      border: none;
+      padding: 12px 32px;
+      border-radius: 50px;
+      font-weight: 600;
+      background: transparent;
+      margin: 0 4px;
+      font-size: 15px;
+      color: #666;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .mega-tabs .nav-link.active {
+      background: linear-gradient(135deg, #ffb75e 0%, #ed8f03 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(248, 160, 40, 0.5);
+      transform: translateY(-2px);
+    }
+    .products-grid {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 900px;
+      margin: 30px auto;
+    }
+    .mega-card {
+      background: white;
+      border: 2px solid #f0f0f0;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      width: 180px;
+    }
+    .mega-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(248, 160, 40, 0.5);
+      box-shadow: 0 12px 30px rgba(248, 160, 40, 0.5);
+    }
+    .mega-card img {
+      width: 100%;
+      height: auto;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mega-card:hover img {
+      transform: scale(1.08);
+    }
+    .mega-card p {
+      margin: 0;
+      font-weight: 600;
+      font-size: 15px;
+      color: #333;
+    }
+    .mega-pane {
+      display: none;
+    }
+    .mega-pane.active {
+      display: block;
+    }
+    .d-flex { display: flex; }
+    .justify-content-between { justify-content: space-between; }
+    .align-items-center { align-items: center; }
+    .mb-0 { margin-bottom: 0; }
+    .mt-4 { margin-top: 1.5rem; }
+    .nav { display: flex; list-style: none; }
+    .nav-item { display: flex; }
+  </style>
+
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+</head>
+<body>
+
+  <!-- Top promo bar -->
+  <div class="topbar">
+    <div class="left">
+      <div class="marquee" tabindex="0" aria-label="Promotional announcements">
+        <div class="marquee-track" aria-hidden="false">
+          <span class="marquee-item">Upgrade your lifestyle with cutting-edge technology.</span>
+          <span class="marquee-item">Shop now and experience the future at your fingertips.</span>
+          <span class="marquee-item">From smart gadgets to everyday electronics, find products that enhance convenience, efficiency, and style.</span>
+          <span class="marquee-item">Upgrade your lifestyle with cutting-edge technology.</span>
+          <span class="marquee-item">From smart gadgets to everyday electronics, find products that enhance convenience, efficiency, and style.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <img src="image/gujjuEClogo.png" alt="Gujju logo" loading="lazy"
+             onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;150&quot; height=&quot;44&quot;><rect rx=&quot;8&quot; width=&quot;150&quot; height=&quot;44&quot; fill=&quot;%23111&quot;/><text x=&quot;16&quot; y=&quot;28&quot; fill=&quot;%23fff&quot; font-family=&quot;Arial&quot; font-size=&quot;18&quot;>Gujju</text></svg>'" />
+      </div>
+
+      <div class="search">
+        <input placeholder="Search for shoes, categories, collections..." />
+        <button>Search</button>
+      </div>
+
+      <div class="icons">
+        <div class="icon">Login</div>
+        <div class="icon">Account</div>
+        <div class="icon">Cart (0)</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-link mega-trigger" data-category="new">New
+        <div class="dropdown">
+          <a href="#">New Launch Deals</a>
+          <a href="#">The Urban Collection</a>
+          <a href="#">The Cushers Collection</a>
+        </div>
+      </div>
+      <div class="nav-link mega-trigger" data-category="men">Men
+        <div class="dropdown">
+          <a href="#">Sneakers</a>
+          <a href="#">Slip Ons</a>
+          <a href="#">Loafers</a>
+        </div>
+      </div>
+      <div class="nav-link mega-trigger" data-category="women">Women
+        <div class="dropdown">
+          <a href="#">Sneakers</a>
+          <a href="#">Slides</a>
+          <a href="#">Sandals</a>
+        </div>
+      </div>
+      <div class="nav-link">Offers</div>
+      <div class="nav-link">Stores</div>
+    </div>
+  </nav>
+
+  <!-- Mega Popup -->
+  <div class="mega-popup-overlay" id="megaOverlay"></div>
+  <div class="mega-popup" id="megaPopup">
+    <div class="d-flex justify-content-between align-items-center popup-header">
+      <h4 class="mb-0" id="popupTitle">Shop Menu</h4>
+      <button class="btn-close" id="closeMega">×</button>
+    </div>
+    <ul class="nav mega-tabs mt-4">
+      <li class="nav-item">
+        <button class="nav-link active" data-target="#byCategory">By Category</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-target="#byUse">By Use</button>
+      </li>
+    </ul>
+    <div class="mega-pane active" id="byCategory">
+      <div class="products-grid" id="categoryGrid"></div>
+    </div>
+    <div class="mega-pane" id="byUse">
+      <div class="products-grid">
+        <div class="mega-card">
+          <img src="image/Sneakers_women.png" alt="Daily Wear" onerror="this.src='https://via.placeholder.com/160x120?text=Daily'"/>
+          <p>Daily Wear</p>
+        </div>
+        <div class="mega-card">
+          <img src="image/Sneakers_women.png" alt="Office Use" onerror="this.src='https://via.placeholder.com/160x120?text=Office'"/>
+          <p>Office Use</p>
+        </div>
+        <div class="mega-card">
+          <img src="image/Sneakers_women.png" alt="Running" onerror="this.src='https://via.placeholder.com/160x120?text=Running'"/>
+          <p>Running</p>
+        </div>
+        <div class="mega-card">
+          <img src="image/Sneakers_women.png" alt="Travel" onerror="this.src='https://via.placeholder.com/160x120?text=Travel'"/>
+          <p>Travel</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <h1>Buy Shoes for Men &amp; Women Online</h1>
+        <p>Made in India • Sustainable materials • Free shipping over 999</p>
+        <a class="cta" href="#">Shop Now</a>
+      </div>
+      <div class="hero-right">
+        <img src="image/product.png" banner" style="width:100%;border-radius:10px;">
+      </div>
+    </div>
+  </section>
+
+  <!-- Exclusive Editions Slider -->
+  <section class="exclusive-editions">
+    <div class="container">
+      <h2>Our Exclusive Editions</h2>
+      <p>Discover our limited edition shoes crafted with precision and style.</p>
+
+      <div class="swiper exclusive-swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide edition-card">
+            <img src="assets/shoe1.jpg" alt="Edition 1">
+            <h3>Urban Sneakers</h3>
+            <p>Comfortable, stylish, and perfect for every day.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+          <div class="swiper-slide edition-card">
+            <img src="assets/shoe2.jpg" alt="Edition 2">
+            <h3>Cushers Collection</h3>
+            <p>Soft soles and sleek design for urban explorers.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+          <div class="swiper-slide edition-card">
+            <img src="assets/shoe3.jpg" alt="Edition 3">
+            <h3>Limited Slip-Ons</h3>
+            <p>Easy to wear, trendy, and made in India.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+          <div class="swiper-slide edition-card">
+            <img src="assets/shoe4.jpg" alt="Edition 4">
+            <h3>Premium Loafers</h3>
+            <p>Classic style with ultimate comfort.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+        </div>
+        <!-- Swiper Arrows -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner footer">
+      <div class="col">
+        <h4>Customer Care</h4>
+        <a href="#">Help & FAQs</a>
+        <a href="#">Shipping</a>
+        <a href="#">Returns & Exchanges</a>
+      </div>
+      <div class="col">
+        <h4>About</h4>
+        <a href="#">Brand Impact</a>
+        <a href="#">Sustainability</a>
+        <a href="#">Store Reviews</a>
+      </div>
+      <div class="col">
+        <h4>Contact</h4>
+        <a href="#">Contact Us</a>
+        <a href="#">Bulk Inquiry</a>
+      </div>
+      <div class="col">
+        <h4>Follow Us</h4>
+        <div class="socials"><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">X</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+  <script>
+    const swiper = new Swiper('.exclusive-swiper', {
+      slidesPerView: 1,
+      spaceBetween: 20,
+      loop: true,
+      navigation: {
+        nextEl: '.swiper-button-next',
+        prevEl: '.swiper-button-prev',
+      },
+      breakpoints: {
+        640: { slidesPerView:1 },
+        768: { slidesPerView:2 },
+        1024:{ slidesPerView:3 },
+        1200:{ slidesPerView:4 },
+      },
+      autoplay: {
+        delay:3000,
+        disableOnInteraction:false,
+      },
+    });
+  </script>
+
+  <script>
+    // (Optional) Small JS to handle keyboard focus for accessibility on dropdowns
+    document.querySelectorAll('.nav-link').forEach(item=>{
+      item.addEventListener('focusin',()=>{
+        const dd=item.querySelector('.dropdown'); if(dd) {dd.style.opacity=1;dd.style.transform='translateY(0)';}
+      });
+      item.addEventListener('focusout',()=>{
+        const dd=item.querySelector('.dropdown'); if(dd) {dd.style.opacity=0;dd.style.transform='translateY(6px)';}
+      });
+    });
+  </script>
+</body>
+</html>

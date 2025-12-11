@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gujju — With Mega Popup</title>
+
+  <!-- Bootstrap (used by the popup file you provided) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Swiper CSS (for the Exclusive Editions slider) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+  <style>
+    /* ===== RESET & BASICS ===== */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:Inter, system-ui, Arial, sans-serif;line-height:1.4;color:#111;background:#fff}
+    a{text-decoration:none;color:inherit}
+    .container-max{max-width:1200px;margin:0 auto;padding:0 16px}
+
+    /* ===== TOPBAR / MARQUEE ===== */
+    .topbar{background:#f6f7f8;border-bottom:1px solid #eee;padding:8px 16px;font-size:14px;display:flex;align-items:center}
+    .topbar .left{flex:1;min-width:0;color:#111}
+    .marquee{overflow:hidden;display:block;width:100%;border-radius:6px}
+    .marquee-track{display:inline-flex;gap:48px;align-items:center;white-space:nowrap;animation: marquee 12s linear infinite}
+    .marquee-item{display:inline-block;padding:6px 0;color:#111;font-weight:600}
+    @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    @media (prefers-reduced-motion: reduce){.marquee-track{animation:none}}
+    @media (max-width:700px){.marquee-track{gap:28px;animation-duration:18s}.marquee-item{font-size:13px}}
+
+    /* ===== HEADER ===== */
+    header{background:#fff;box-shadow:0 1px 0 rgba(0,0,0,0.04)}
+    .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;gap:12px}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo img{height:44px;max-height:44px;width:auto;display:block;object-fit:contain}
+    .search{flex:1;max-width:560px;display:flex;align-items:center}
+    .search input{flex:1;padding:10px 12px;border:1px solid #e4e4e4;border-right:0;border-radius:6px 0 0 6px}
+    .search button{padding:10px 14px;border:1px solid #e4e4e4;background:#FF8C00;radius:0 6px 6px 0;cursor:pointer}
+    .icons{display:flex;gap:12px;align-items:center}
+    .icon{padding:8px 10px;border-radius:6px;cursor:pointer}
+
+    /* ===== NAV ===== */
+    nav{background:#fff;border-top:1px solid #f1f1f1;position:relative;z-index:5}
+    .nav-inner{max-width:1200px;margin:0 auto;display:flex;gap:18px;padding:10px 16px;align-items:center}
+    .nav-link{position:relative;padding:8px 10px;border-radius:6px;color:#333;font-weight:600;cursor:pointer;user-select:none}
+    .nav-link:hover{background:linear-gradient(90deg, rgba(0,0,0,0.03), rgba(0,0,0,0.01));}
+    .nav-link::after{content:"";position:absolute;bottom:-3px;left:0;width:0;height:2px;background:#FF8C00;transition:width .25s ease}
+    .nav-link:hover::after{width:100%}
+    .dropdown{position:absolute;left:0;top:44px;min-width:220px;background:#fff;border:1px solid #eee;box-shadow:0 6px 18px rgba(0,0,0,0.06);padding:12px;border-radius:8px;opacity:0;transform:translateY(6px);transition:all .18s;pointer-events:none}
+    .nav-link:hover .dropdown{opacity:1;transform:translateY(0);pointer-events:auto}
+    .dropdown a{display:block;padding:6px 8px;border-radius:6px;color:#333}
+    .dropdown a:hover{background:#f4f6f8}
+
+    @media (max-width:900px){
+      .search{display:none}
+      .nav-inner{overflow:auto}
+      .logo img{height:38px}
+    }
+
+    /* ===== HERO ===== */
+    .hero{background:linear-gradient(90deg,#fafafa,#fff);padding:36px 16px}
+    .hero-inner{max-width:1200px;margin:0 auto;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+    .hero-left{flex:1;min-width:260px}
+    .hero-left h1{font-size:28px;margin-bottom:12px}
+    .hero-left p{font-size:16px;color:#555;margin-bottom:12px}
+    .cta{display:inline-block;padding:12px 18px;background:#ff7f00;color:#fff;border-radius:8px;margin-top:12px}
+    .hero-right{flex:1;min-width:260px}
+    .hero-right img{width:100%;border-radius:10px}
+
+    /* ===== EXCLUSIVE EDITIONS SLIDER ===== */
+    .exclusive-editions{padding:60px 16px;background:#fdfdfd;text-align:center}
+    .exclusive-editions h2{font-size:32px;margin-bottom:12px;font-weight:700}
+    .exclusive-editions p{font-size:16px;color:#555;margin-bottom:40px}
+    .edition-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.08);transition:transform .25s,box-shadow .25s;text-align:center;padding-bottom:16px}
+    .edition-card:hover{transform:translateY(-6px);box-shadow:0 12px 28px rgba(0,0,0,0.12)}
+    .edition-card img{width:100%;display:block}
+    .edition-card h3{font-size:18px;margin:12px 16px 6px}
+    .edition-card p{font-size:14px;color:#666;margin:0 16px 12px}
+    .edition-card .btn{display:inline-block;margin-top:8px;padding:10px 18px;background:#FF8C00;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;transition:background .25s,transform .25s}
+    .edition-card .btn:hover{background:#ff7f00;transform:scale(1.05)}
+    .swiper-button-next,.swiper-button-prev{color:#FF8C00}
+
+    /* ===== FOOTER ===== */
+    footer{background:#111;color:#fff;padding:28px 16px}
+    .footer-inner{max-width:1200px;margin:0 auto;display:flex;gap:24px;flex-wrap:wrap}
+    .col{min-width:160px}
+    .footer h4{font-size:15px;margin-bottom:10px}
+    .footer a{color:#ddd;display:block;margin:6px 0}
+    .socials{display:flex;gap:8px;margin-top:8px}
+  </style>
+
+  <!-- ---------- MEGA POPUP STYLES (from your provided file, unchanged) ---------- -->
+  <style>
+    /* ---------- Overlay with blur effect ---------- */
+    .mega-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      backdrop-filter: blur(0px);
+      opacity: 0;
+      visibility: hidden;
+      z-index: 998;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mega-popup-overlay.show {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ---------- Popup Box with slide & scale animation ---------- */
+    .mega-popup {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px) scale(0.95);
+      width: 90%;
+      max-width: 1250px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 999;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mega-popup.show {
+      transform: translateX(-50%) translateY(0) scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Custom scrollbar */
+    .mega-popup::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .mega-popup::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .mega-popup::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 10px;
+    }
+
+    .mega-popup::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+
+    /* ---------- Header with gradient ---------- */
+    .popup-header {
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 20px;
+      margin-bottom: 25px;
+    }
+
+    .popup-header h4 {
+      background: linear-gradient(135deg, #ffb75e 0%, #ed8f03 100%);
+
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+      font-size: 28px;
+    }
+
+    .btn-close {
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .btn-close:hover {
+      transform: rotate(90deg);
+      opacity: 0.7;
+    }
+
+    /* ---------- Sticky Left Column ---------- */
+    .left-menu {
+      position: sticky;
+      top: 10px;
+      opacity: 0;
+      transform: translateX(-20px);
+      animation: slideInLeft 0.6s ease forwards 0.2s;
+    }
+
+    @keyframes slideInLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .left-menu h6 {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .feature-item {
+      padding: 16px 14px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 10px;
+      margin-bottom: 5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: linear-gradient(135deg, #ffb75e 0%, #ed8f03 100%);
+
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+      background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.1) 0%,
+        rgba(118, 75, 162, 0.1) 100%
+      );
+      transform: translateX(8px);
+      border-bottom-color: transparent;
+    }
+
+    .feature-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .feature-item span {
+      font-size: 20px;
+      font-weight: bold;
+      transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover span {
+      transform: translateX(5px);
+    }
+
+    /* ---------- Centered Tabs with pill design ---------- */
+    .mega-tabs {
+      display: flex;
+      justify-content: center;
+      border-bottom: none;
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 50px;
+      width: fit-content;
+      margin: 0 auto;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .mega-tabs .nav-link {
+      border: none;
+      padding: 12px 32px;
+      border-radius: 50px;
+      font-weight: 600;
+      background: transparent;
+      margin: 0 4px;
+      font-size: 15px;
+      color: #666;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .mega-tabs .nav-link:hover {
+      color: #333;
+    }
+
+    .mega-tabs .nav-link.active {
+      background: linear-gradient(135deg, #ffb75e 0%, #ed8f03 100%);
+
+      color: white;
+      box-shadow: 0 4px 12px rgba(248, 160, 40, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* ---------- Animated Grid Cards ---------- */
+    .products-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+
+    .products-grid {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 900px;
+    }
+
+    .mega-card {
+      background: white;
+      border: 2px solid #f0f0f0;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      width: 180px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .mega-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.1) 0%,
+        rgba(118, 75, 162, 0.1) 100%
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .mega-card:hover::before {
+      opacity: 1;
+    }
+
+    .mega-pane.active .mega-card {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    .mega-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+    .mega-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .mega-card:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+    .mega-card:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+    .mega-card:nth-child(5) {
+      animation-delay: 0.5s;
+    }
+    .mega-card:nth-child(6) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mega-card img {
+      width: 100%;
+      height: auto;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 1;
+    }
+
+    .mega-card p {
+      margin: 0;
+      font-weight: 600;
+      font-size: 15px;
+      color: #333;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mega-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(248, 160, 40, 0.5);
+      box-shadow: 0 12px 30px rgba(248, 160, 40, 0.5);
+    }
+
+    .mega-card:hover img {
+      transform: scale(1.08);
+    }
+
+    .mega-pane {
+      display: none;
+    }
+
+    .mega-pane.active {
+      display: block;
+    }
+
+    /* Trigger button with gradient (kept for debug if needed) */
+    #openMegaMenu {
+      background: linear-gradient(135deg, #ffb75e 0%, #ed8f03 100%);
+      border: none;
+      padding: 14px 32px;
+      font-weight: 600;
+      font-size: 16px;
+      border-radius: 50px;
+      box-shadow: 0 6px 20px rgba(248, 160, 40, 0.5);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #openMegaMenu:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(248, 160, 40, 0.5);
+    }
+
+    #openMegaMenu:active {
+      transform: translateY(-1px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .mega-popup {
+        padding: 20px;
+        top: 40px;
+        max-height: calc(100vh - 80px);
+      }
+
+      .mega-card {
+        width: 150px;
+        padding: 18px;
+      }
+
+      .products-grid {
+        gap: 18px;
+      }
+
+      .popup-header h4 {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .mega-popup {
+        top: 20px;
+        width: 95%;
+        padding: 18px;
+      }
+
+      .mega-card {
+        width: 140px;
+        padding: 15px;
+      }
+
+      .left-menu {
+        margin-bottom: 20px;
+      }
+
+      .mega-tabs .nav-link {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="left container-max">
+      <div class="marquee" tabindex="0" aria-label="Promotional announcements">
+        <div class="marquee-track" aria-hidden="false">
+          <span class="marquee-item">Upgrade your lifestyle with cutting-edge technology.</span>
+          <span class="marquee-item">Shop now and experience the future at your fingertips.</span>
+          <span class="marquee-item">From smart gadgets to everyday electronics, find products that enhance convenience, efficiency, and style.</span>
+          <span class="marquee-item">Limited time offers on select categories.</span>
+          <span class="marquee-item">Upgrade your lifestyle with cutting-edge technology.</span>
+          <span class="marquee-item">Shop now and experience the future at your fingertips.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner container-max">
+      <div class="logo">
+        <img src="image/gujjuEClogo.png" alt="Gujju logo" loading="lazy"
+             onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;150&quot; height=&quot;44&quot;><rect rx=&quot;8&quot; width=&quot;150&quot; height=&quot;44&quot; fill=&quot;%23111&quot;/><text x=&quot;16&quot; y=&quot;28&quot; fill=&quot;%23fff&quot; font-family=&quot;Arial&quot; font-size=&quot;18&quot;>Gujju</text></svg>'" />
+      </div>
+
+      <div class="search" aria-hidden="false">
+        <input placeholder="Search for shoes, categories, collections..." aria-label="Search" />
+        <button aria-label="Search">Search</button>
+      </div>
+
+      <div class="icons" role="group" aria-label="User actions">
+        <div class="icon">Login</div>
+        <div class="icon">Account</div>
+        <div class="icon">Cart (0)</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner container-max" role="navigation" aria-label="Main navigation">
+      <div class="nav-link" data-open="new" tabindex="0">New
+        <div class="dropdown" aria-hidden="true">
+          <a href="#">New Launch Deals</a>
+          <a href="#">The Urban Collection</a>
+          <a href="#">The Cushers Collection</a>
+        </div>
+      </div>
+
+      <div class="nav-link" data-open="men" tabindex="0">Men
+        <div class="dropdown" aria-hidden="true">
+          <a href="#">Sneakers</a>
+          <a href="#">Slip Ons</a>
+          <a href="#">Loafers</a>
+        </div>
+      </div>
+
+      <div class="nav-link" data-open="women" tabindex="0">Women
+        <div class="dropdown" aria-hidden="true">
+          <a href="#">Sneakers</a>
+          <a href="#">Slides</a>
+          <a href="#">Sandals</a>
+        </div>
+      </div>
+
+      <div class="nav-link" tabindex="0">Offers</div>
+      <div class="nav-link" tabindex="0">Stores</div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner container-max">
+      <div class="hero-left">
+        <h1>Buy Shoes for Men &amp; Women Online</h1>
+        <p>Made in India • Sustainable materials • Free shipping over 999</p>
+        <a class="cta" href="#">Shop Now</a>
+      </div>
+      <div class="hero-right">
+        <img src="image/Sneakers_women.png" alt="Banner" style="width:100%;border-radius:10px" onerror="this.onerror=null;this.src='https://via.placeholder.com/600x350?text=Banner'">
+      </div>
+    </div>
+  </section>
+
+  <!-- EXCLUSIVE EDITIONS SLIDER -->
+  <section class="exclusive-editions">
+    <div class="container-max">
+      <h2>Our Exclusive Editions</h2>
+      <p>Discover our limited edition shoes crafted with precision and style.</p>
+
+      <div class="swiper exclusive-swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide edition-card">
+            <img src="image/Sneakers_women.png" alt="Edition 1" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300?text=Shoe+1'">
+            <h3>Urban Sneakers</h3>
+            <p>Comfortable, stylish, and perfect for every day.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+          <div class="swiper-slide edition-card">
+            <img src="image/Sneakers_women.png" alt="Edition 2" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300?text=Shoe+2'">
+            <h3>Cushers Collection</h3>
+            <p>Soft soles and sleek design for urban explorers.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+          <div class="swiper-slide edition-card">
+            <img src="image/Sneakers_women.png" alt="Edition 3" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300?text=Shoe+3'">
+            <h3>Limited Slip-Ons</h3>
+            <p>Easy to wear, trendy, and made in India.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+          <div class="swiper-slide edition-card">
+            <img src="image/Sneakers_women.png" alt="Edition 4" onerror="this.onerror=null;this.src='https://via.placeholder.com/400x300?text=Shoe+4'">
+            <h3>Premium Loafers</h3>
+            <p>Classic style with ultimate comfort.</p>
+            <a href="#" class="btn">Shop Now</a>
+          </div>
+        </div>
+        <!-- Swiper Arrows -->
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner container-max">
+      <div class="col">
+        <h4>Customer Care</h4>
+        <a href="#">Help & FAQs</a>
+        <a href="#">Shipping</a>
+        <a href="#">Returns & Exchanges</a>
+      </div>
+      <div class="col">
+        <h4>About</h4>
+        <a href="#">Brand Impact</a>
+        <a href="#">Sustainability</a>
+        <a href="#">Store Reviews</a>
+      </div>
+      <div class="col">
+        <h4>Contact</h4>
+        <a href="#">Contact Us</a>
+        <a href="#">Bulk Inquiry</a>
+      </div>
+      <div class="col">
+        <h4>Follow Us</h4>
+        <div class="socials"><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">X</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ---------- MEGA POPUP HTML (unchanged from your file) ---------- -->
+  <div class="mega-popup-overlay" id="megaOverlay"></div>
+
+  <div class="mega-popup" id="megaPopup">
+    <div class="d-flex justify-content-between align-items-center popup-header">
+      <h4 class="mb-0">Shop Menu</h4>
+      <button class="btn-close" id="closeMega" aria-label="Close"></button>
+    </div>
+
+    <!-- Centered Tabs -->
+    <ul class="nav nav-tabs mega-tabs mt-4">
+      <li class="nav-item">
+        <button class="nav-link active" data-target="#byCategory">By Category</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-target="#byUse">By Use</button>
+      </li>
+    </ul>
+
+    <div class="row mt-4">
+      <!-- LEFT SIDE (Sticky) -->
+      <div class="col-12 col-md-3 left-menu">
+        <h6 class="text-muted mb-3">Featured</h6>
+
+        <div class="feature-item">New Launch Deals <span>›</span></div>
+        <div class="feature-item">The Urban Collection <span>›</span></div>
+        <div class="feature-item">The Cushers Collection <span>›</span></div>
+      </div>
+
+      <!-- RIGHT SIDE CONTENT -->
+      <div class="col-12 col-md-9">
+        <!-- By Category -->
+        <div class="mega-pane active" id="byCategory">
+          <div class="products-container">
+            <div class="products-grid">
+              <div class="mega-card">
+                  <img
+                    src="/images/Sneakers_women.webp"
+                    class="img-fluid"
+                    alt="Sneakers"
+                  />
+                  <p>Sneakers</p>
+                </div>
+
+              <div class="mega-card">
+                <img src="/images/Sneakers_women.png" class="img-fluid" alt="Slip Ons" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x120?text=Slip+Ons'"/>
+                <p>Slip Ons</p>
+              </div>
+
+              <div class="mega-card">
+                <img src="/images/Sneakers_women.png" class="img-fluid" alt="Oxfords" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x120?text=Oxfords'"/>
+                <p>Oxfords</p>
+              </div>
+
+              <div class="mega-card">
+                <img src="/images/Sneakers_women.png" class="img-fluid" alt="Loafers" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x120?text=Loafers'"/>
+                <p>Loafers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- By Use -->
+        <div class="mega-pane" id="byUse">
+          <div class="products-container">
+            <div class="products-grid">
+              <div class="mega-card">
+                <img src="/images/Chunky_Women.png" class="img-fluid" alt="Daily Wear" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x120?text=Daily'"/>
+                <p>Daily Wear</p>
+              </div>
+
+              <div class="mega-card">
+                <img src="/images/Chunky_Women.png" class="img-fluid" alt="Office Use" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x120?text=Office'"/>
+                <p>Office Use</p>
+              </div>
+
+              <div class="mega-card">
+                <img src="/images/Chunky_Women.png" class="img-fluid" alt="Running" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x120?text=Running'"/>
+                <p>Running</p>
+              </div>
+
+              <div class="mega-card">
+                <img src="/images/Chunky_Women.png" class="img-fluid" alt="Travel" onerror="this.onerror=null;this.src='https://via.placeholder.com/160x120?text=Travel'"/>
+                <p>Travel</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (kept for popup logic if needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+  <script>
+    /* ===== Swiper init for exclusive editions ===== */
+    const swiper = new Swiper('.exclusive-swiper', {
+      slidesPerView: 1,
+      spaceBetween: 20,
+      loop: true,
+      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+      breakpoints: { 640:{slidesPerView:1}, 768:{slidesPerView:2}, 1024:{slidesPerView:3}, 1200:{slidesPerView:4} },
+      autoplay: { delay:3000, disableOnInteraction:false }
+    });
+
+    /* ===== MEGA POPUP LOGIC (kept same behaviour as your popup file) ===== */
+    const megaPopup = document.getElementById('megaPopup');
+    const megaOverlay = document.getElementById('megaOverlay');
+    const closeMegaBtn = document.getElementById('closeMega');
+
+    function openPopupFromNav(category){
+      // set title if needed: document.querySelector('.popup-header h4').textContent = category;
+      megaOverlay.classList.add('show');
+      megaPopup.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePopup(){
+      megaPopup.classList.remove('show');
+      megaOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    // close handlers
+    closeMegaBtn.addEventListener('click', closePopup);
+    megaOverlay.addEventListener('click', closePopup);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closePopup(); });
+
+    // wire nav items "New / Men / Women" to open popup on click and hover (identical behaviour you had)
+    document.querySelectorAll('.nav-link[data-open]').forEach(link=>{
+      const category = link.dataset.open;
+      // click opens
+      link.addEventListener('click', (ev)=>{ ev.stopPropagation(); openPopupFromNav(category); });
+      // hover opens
+      link.addEventListener('mouseenter', ()=> openPopupFromNav(category) );
+      // keyboard: Enter/Space
+      link.addEventListener('keydown',(e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openPopupFromNav(category); } });
+    });
+
+    // Tabs Switching (same as your popup file)
+    document.querySelectorAll(".mega-tabs .nav-link").forEach((btn) => {
+      btn.onclick = () => {
+        document.querySelector(".mega-tabs .nav-link.active").classList.remove("active");
+        btn.classList.add("active");
+
+        document.querySelector(".mega-pane.active").classList.remove("active");
+        document.querySelector(btn.dataset.target).classList.add("active");
+      };
+    });
+
+    // initial animation delays for cards
+    document.querySelectorAll('.mega-pane .mega-card').forEach((card,i)=>{ card.style.animationDelay=(i*80)+'ms'; });
+  </script>
+</body>
+</html>
